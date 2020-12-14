@@ -150,6 +150,8 @@ uint16_t primaryChannelBss=36;
   std::string mcs6 = "IdealWifi";
   std::string mcs7 = "IdealWifi";
 
+  double ccaSdThreshold = -82.0;
+
   double ccaEdThresholdPrimaryBss = -62.0;
   double constantCcaEdThresholdSecondaryBss = -62.0;
   double ccaEdThresholdPrimaryBssA = -62.0;
@@ -227,6 +229,10 @@ uint16_t primaryChannelBss=36;
   cmd.AddValue ("channelBondingType",
                 "The channel bonding type: Static, ConstantThreshold or DynamicThreshold",
                 channelBondingType);
+
+  cmd.AddValue ("ccaSdThreshold",
+                "The Wifi signal detection threshold",
+                ccaSdThreshold);
 
   cmd.AddValue ("ccaEdThresholdPrimaryBssA",
                 "The energy detection threshold on the primary channel for BSS A",
@@ -413,12 +419,13 @@ NodeContainer wifiStaNodes;
 //                           interBssDistance / 2};
  // double apPositionY[7] = {0, sqrt (3) / 2 * interBssDistance,  sqrt (3) / 2 * interBssDistance,
   //                         0, -sqrt (3) / 2 * interBssDistance, -sqrt (3) / 2 * interBssDistance};
- double apPositionX[7] = {0,interBssDistance,interBssDistance*2,interBssDistance*2,interBssDistance,-interBssDistance};
- double apPositionY[7] = {0,0,0,interBssDistance,interBssDistance,interBssDistance,interBssDistance};
+ double apPositionX[7] = {0,0,interBssDistance,-interBssDistance,interBssDistance,-interBssDistance};
+ double apPositionY[7] = {0,0,0,0,0,interBssDistance,interBssDistance};
  for (uint8_t i = 0; i < nBss; i++)
     {
       positionAlloc->Add (Vector (apPositionX[i], apPositionY[i], 0.0));
       maxMcsNode[i] = 0;
+      //std::cout << "ap" << +i << " position" << "(x,y)=(" << apPositionX[i] << "," << apPositionY[i] << ")" << std::endl; 
     }
 
 
@@ -747,13 +754,14 @@ InterferenceVal7=maxSecInterference7;
   unitDiscPositionAllocator1->AssignStreams (streamNumber);
   // AP1 is at origin (x=x1, y=y1), with radius Rho=r
   unitDiscPositionAllocator1->SetX (apPositionX[0]);
-  unitDiscPositionAllocator1->SetY (apPositionY[0]);
-  unitDiscPositionAllocator1->SetRho (distance);
+  unitDiscPositionAllocator1->SetY (distance);
+  unitDiscPositionAllocator1->SetRho (0);
   for (uint32_t i = 0; i < n; i++)
     {
       Vector v = unitDiscPositionAllocator1->GetNext ();
       positionAlloc->Add (v);
       maxMcsNode[i + nBss] = selectMCS (Vector (v.x - apPositionX[0], v.y - apPositionY[0], v.z),InterferenceVal1);
+      //std::cout << "ap1 sta" << +i << " position" << "(x,y)=(" << v.x << "," << v.y << ")" << std::endl; 
     }
 
   if (nBss > 1)
@@ -763,14 +771,15 @@ InterferenceVal7=maxSecInterference7;
       unitDiscPositionAllocator2->AssignStreams (streamNumber + 1);
       // AP2 is at origin (x=x2, y=y2), with radius Rho=r
       unitDiscPositionAllocator2->SetX (apPositionX[1]);
-      unitDiscPositionAllocator2->SetY (apPositionY[1]);
-      unitDiscPositionAllocator2->SetRho (distance);
+      unitDiscPositionAllocator2->SetY (distance);
+      unitDiscPositionAllocator2->SetRho (0);
       for (uint32_t i = 0; i < n; i++)
         {
           Vector v = unitDiscPositionAllocator2->GetNext ();
           positionAlloc->Add (v);
           maxMcsNode[i + nBss + n * 1] =
               selectMCS (Vector (v.x - apPositionX[1], v.y - apPositionY[1], v.z),InterferenceVal2);
+              //std::cout << "ap2 sta" << +i << " position" << "(x,y)=(" << v.x << "," << v.y << ")" << std::endl; 
         }
     }
 
@@ -781,14 +790,15 @@ InterferenceVal7=maxSecInterference7;
       unitDiscPositionAllocator3->AssignStreams (streamNumber + 2);
       // AP3 is at origin (x=x3, y=y3), with radius Rho=r
       unitDiscPositionAllocator3->SetX (apPositionX[2]);
-      unitDiscPositionAllocator3->SetY (apPositionY[2]);
-      unitDiscPositionAllocator3->SetRho (distance);
+      unitDiscPositionAllocator3->SetY (distance);
+      unitDiscPositionAllocator3->SetRho (0);
       for (uint32_t i = 0; i < n; i++)
         {
           Vector v = unitDiscPositionAllocator3->GetNext ();
           positionAlloc->Add (v);
           maxMcsNode[i + nBss + n * 2] =
               selectMCS (Vector (v.x - apPositionX[2], v.y - apPositionY[2], v.z),InterferenceVal3);
+              //std::cout << "ap3 sta" << +i << " position" << "(x,y)=(" << v.x << "," << v.y << ")" << std::endl; 
         }
     }
 
@@ -799,14 +809,15 @@ InterferenceVal7=maxSecInterference7;
       unitDiscPositionAllocator4->AssignStreams (streamNumber + 3);
       // AP4 is at origin (x=x4, y=y4), with radius Rho=r
       unitDiscPositionAllocator4->SetX (apPositionX[3]);
-      unitDiscPositionAllocator4->SetY (apPositionY[3]);
-      unitDiscPositionAllocator4->SetRho (distance);
+      unitDiscPositionAllocator4->SetY (distance);
+      unitDiscPositionAllocator4->SetRho (0);
       for (uint32_t i = 0; i < n; i++)
         {
           Vector v = unitDiscPositionAllocator4->GetNext ();
           positionAlloc->Add (v);
           maxMcsNode[i + nBss + n * 3] =
               selectMCS (Vector (v.x - apPositionX[3], v.y - apPositionY[3], v.z),InterferenceVal4);
+              //std::cout << "ap4 sta" << +i << " position" << "(x,y)=(" << v.x << "," << v.y << ")" << std::endl; 
         }
     }
   if (nBss > 4)
@@ -893,6 +904,7 @@ InterferenceVal7=maxSecInterference7;
   SpectrumWifiPhyHelper phy = SpectrumWifiPhyHelper::Default ();
   phy.Set ("TxPowerStart", DoubleValue (TxP));
   phy.Set ("TxPowerEnd", DoubleValue (TxP));
+  phy.SetPreambleDetectionModel ("ns3::ThresholdPreambleDetectionModel","Threshold", DoubleValue (ccaSdThreshold + 94));
 
   Ptr<MultiModelSpectrumChannel> channel = CreateObject<MultiModelSpectrumChannel> ();
   Ptr<LogDistancePropagationLossModel> lossModel = CreateObject<LogDistancePropagationLossModel> ();
@@ -2022,8 +2034,8 @@ phy.EnablePcap ("apC_pcap", apDeviceC);
     {
       double bitsReceived = bytesReceived[k] * 8;
       rxThroughputPerNode[k] = static_cast<double> (bitsReceived) / 1e6 / simulationTime;
-      std::cout << "Node " << k << ", pkts " << packetsReceived[k] << ", bytes " << bytesReceived[k]
-                << ", throughput [MMb/s] " << rxThroughputPerNode[k] << std::endl;
+      std::cout << "Node, " << k << ", pkts, " << packetsReceived[k] << ", bytes, " << bytesReceived[k]
+                << ", throughput [MMb/s], " << rxThroughputPerNode[k] << std::endl;
           TputFile << rxThroughputPerNode[k] << std::endl;
 
     }
